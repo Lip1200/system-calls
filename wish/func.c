@@ -6,15 +6,19 @@ int execute_builtin(int argc, char *argv[]) {
         // Gestion de la commande 'cd'
         if (argc == 1) {
             chdir(getenv("HOME"));  // Aller au répertoire HOME si aucun chemin n'est fourni
-        } else {
+        } 
+        else {
             if (chdir(argv[1]) != 0) { //changer de répertoire
                 // Erreur : Le répertoire n'existe pas ou l'accès est refusé
                 perror("cd");
+            }
         }
-    } else if (strncmp(argv[0], "exit", 4) == 0) {
+    } 
+    else if (strncmp(argv[0], "exit", 4) == 0) {
         // Gestion de la commande 'exit'
         exit(EXIT_SUCCESS);
-    } else {
+    } 
+    else {
         return 0; // Commande non reconnue comme builtin
     }
     return 1; // Commande builtin reconnue et exécutée
