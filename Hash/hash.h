@@ -4,25 +4,25 @@
 #include <openssl/evp.h>
 
 /**
- * @brief Calcule le hachage d'un fichier spécifié.
+ * @brief Computes the hash of a specified file.
  * 
- * Cette fonction prend le chemin d'un fichier en entrée, calcule son hachage en utilisant
- * l'algorithme de hachage spécifié par le pointeur digest, et affiche le résultat du hachage.
+ * This function takes a file path as input, computes its hash using
+ * the hash algorithm specified by the digest pointer, and displays the hash result.
  * 
- * @param file Chemin du fichier à hacher.
- * @param digest Pointeur vers l'algorithme de hachage à utiliser.
+ * @param file Path of the file to hash.
+ * @param digest Pointer to the hash algorithm to use.
  */
 void FileHash(char* file, const EVP_MD* digest);
 
 /**
- * @brief Calcule le hachage d'une chaîne de caractères spécifiée.
+ * @brief Computes the hash of a specified string.
  * 
- * Cette fonction prend une chaîne de caractères en entrée, calcule son hachage en utilisant
- * l'algorithme de hachage spécifié par le pointeur digest, et affiche le résultat du hachage.
+ * This function takes a string as input, computes its hash using
+ * the hash algorithm specified by the digest pointer, and displays the hash result.
  * 
- * @param input Chaîne de caractères à hacher.
- * @param digest Pointeur vers l'algorithme de hachage à utiliser.
- * @param size_input Taille de la chaîne de caractères à hacher.
+ * @param input String to hash.
+ * @param digest Pointer to the hash algorithm to use.
+ * @param size_input Size of the string to hash.
  */
 void StringHash(char* input, const EVP_MD* digest, int size_input);
 

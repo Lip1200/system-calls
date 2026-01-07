@@ -9,63 +9,65 @@
 
 void FileHash(char* file, const EVP_MD* md)
 {
-    // Initialiser le contexte de hachage
+    // Initialize the hash context
     EVP_MD_CTX* mdctx;
     mdctx = EVP_MD_CTX_new();
     if (mdctx == NULL)
     {
-        fprintf(stderr, "Erreur lors de l'initialisation du contexte de hachage.\n");
+        fprintf(stderr, "Error initializing hash context.\\n");
     }
 
-    // initialisation
+    // Initialization
     if (!EVP_DigestInit_ex(mdctx, md, NULL))
     {
-        printf("Erreur d'initialisation.\n");
+        printf("Initialization error.\\n");
         EVP_MD_CTX_free(mdctx);
         exit(EXIT_FAILURE);
     }
-    // Ouvrir le fichier en mode lecture
+    // Open file in read mode
     FILE *fp = fopen(file, "r");
     if (fp == NULL)
     {
-        fprintf(stderr, "Impossible d'ouvrir le fichier : %s\n", file);
+        fprintf(stderr, "Unable to open file: %s\n", file);
+        EVP_MD_CTX_free(mdctx);
+        return;
     }
 
     char* line = NULL;
     size_t len = 0;
     ssize_t read;
 
-    // Lire le fichier ligne par ligne et mettre à jour le hachage
+    // Read file line by line and update hash
     while ((read = getline(&line, &len, fp)) != -1)
     {
 
         if (!EVP_DigestUpdate(mdctx, line, read))
         {
-            printf("Erreur de mise-à-jour du message digest.\n");
+            printf("Message digest update error.\\n");
             EVP_MD_CTX_free(mdctx);
             exit(1);
         }
     }
 
-    // Finaliser le hachage et obtenir le résultat
+    // Finalize hash and get result
     unsigned char hash[EVP_MAX_MD_SIZE];
     unsigned int hash_len;
     if (!EVP_DigestFinal_ex(mdctx, hash, &hash_len))
     {
-        printf("Message digest finalization failed.\n");
+        printf("Message digest finalization failed.\\n");
         EVP_MD_CTX_free(mdctx);
         exit(EXIT_FAILURE);
     }
 
-    // Afficher le hachage calculé
-    printf("Hachage (%s) : ", EVP_MD_name(md));
+    // Display computed hash
+    printf("Hash (%s): ", EVP_MD_name(md));
     for (unsigned int i = 0; i < hash_len; ++i)
     {
         printf("%02x", hash[i]);
     }
-    printf("\n");
+    printf("\\n");
 
-    // libere la memoire et ferme le fichier
+    // Free memory and close file
     EVP_MD_CTX_free(mdctx);
     fclose(fp);
     if (line)
@@ -76,21 +78,21 @@ void FileHash(char* file, const EVP_MD* md)
 
 void StringHash(char* input, const EVP_MD* md, int size_input)
 {
-    // Initialiser le contexte de hachage
+    // Initialize the hash context
     EVP_MD_CTX *mdctx;
     mdctx = EVP_MD_CTX_new();
 
     if (!EVP_DigestInit_ex(mdctx, md, NULL))
     {
-        printf("Erreur d'initialisation.\n");
+        printf("Initialization error.\\n");
         EVP_MD_CTX_free(mdctx);
         exit(EXIT_FAILURE);
     }
 
-    // Allouer de la mémoire pour la chaîne résultante
+    // Allocate memory for the resulting string
     unsigned char *data = (unsigned char *)malloc(size_input);
 
-    // Parcourir la chaîne de caractères input et copier les caractères avec les espaces
+    // Traverse input string and copy characters with spaces
     int data_index = 0;
     for (int i = 0; i < size_input; ++i)
     {
@@ -98,33 +100,33 @@ void StringHash(char* input, const EVP_MD* md, int size_input)
         data_index++;
     }
 
-    // Mettre à jour le hachage avec les données
+    // Update hash with data
     if (!EVP_DigestUpdate(mdctx, data, size_input))
     {
-        printf("Message digest update failed.\n");
+        printf("Message digest update failed.\\n");
         EVP_MD_CTX_free(mdctx);
         exit(EXIT_FAILURE);
     }
 
-    // Finaliser le hachage et obtenir le résultat
+    // Finalize hash and get result
     unsigned char hash[EVP_MAX_MD_SIZE];
     unsigned int hash_len;
     if (!EVP_DigestFinal_ex(mdctx, hash, &hash_len))
     {
-        printf("Message digest finalization failed.\n");
+        printf("Message digest finalization failed.\\n");
         EVP_MD_CTX_free(mdctx);
         exit(EXIT_FAILURE);
     }
 
-    // Afficher le hachage calculé
-    printf("Hachage (%s) : ", EVP_MD_name(md));
+    // Display computed hash
+    printf("Hash (%s): ", EVP_MD_name(md));
     for (unsigned int i = 0; i < hash_len; ++i)
     {
         printf("%02x", hash[i]);
     }
-    printf("\n");
+    printf("\\n");
 
-    // Libérer la mémoire allouée dynamiquement
+    // Free dynamically allocated memory
     EVP_MD_CTX_free(mdctx);
     free(data);
 }

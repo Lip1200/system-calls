@@ -21,15 +21,15 @@ void banniereServeur(void) {
 int convertPort(const char* portStr) {
     int port = atoi(portStr);
     if (port == 0) {
-        perror("Impossible de convertir le port en Int");
+        perror("Unable to convert port to Int");
         return -1;
     }
     if (port < 1024) {
-        perror("Numéro de port trop petit");
+        perror("Port number too small");
         return -1;
     }
     if (port > 65535) {
-        perror("Numéro de port trop élevé");
+        perror("Port number too high");
         return -1;
     }
     return port;
@@ -39,11 +39,11 @@ int genererNombreAleatoire() {
     unsigned char aleatoire;
     int fd = open("/dev/urandom", O_RDONLY);
     if (fd < 0) {
-        perror("Echec d'ouverture de /dev/urandom");
+        perror("Failed to open /dev/urandom");
         return -1;
     }
     if (read(fd, &aleatoire, sizeof(aleatoire)) == -1) {
-        perror("Erreur de lecture du nombre");
+        perror("Error reading number");
         close(fd);
         return -1;
     }
@@ -70,45 +70,45 @@ void envoyerReponse(int socket_client, int cmd, int valeur) {
 void gererConnexion(int socket_client, int valeurMystere) {
     char buff[BUFFER_SIZE];
     int proposition, cmd, tentative;
-    // Génération du nombre aléatoire
+    // Generate random number
     if (valeurMystere < 0) {
-        perror("Erreur de génération aléatoire du nombre mystère");
+        perror("Error generating random mystery number");
         exit(EXIT_FAILURE);
     }
-    // Affiche la valeur mystère pour le suivi (log)
-    printf("La valeur %d est choisie pour le client %d \n\n", valeurMystere, socket_client);
+    // Display mystery value for logging
+    printf("Value %d is chosen for client %d \\n\\n", valeurMystere, socket_client);
 
-    // Envoi des bornes au client
+    // Send bounds to client
     snprintf(buff, BUFFER_SIZE, "min=%d, max=%d", 0, MAX_GUESS);
     write(socket_client, buff, BUFFER_SIZE);
 
-    // Boucle pour gérer les tentatives du client
+    // Loop to handle client attempts
     for (tentative = 0; tentative < MAX_TENTATIVES; ++tentative) {
-        ssize_t n_read = read(socket_client, buff, BUFFER_SIZE); // Lit la proposition du client
+        ssize_t n_read = read(socket_client, buff, BUFFER_SIZE); // Read client's guess
         if (n_read < 0) {
             perror("read error");
             break;
         } else if (n_read == 0) {
-            printf("Le client %d a fermé la connexion.\n", socket_client);
+            printf("Client %d closed the connection.\\n", socket_client);
             break;
         }
-        // Analyse la proposition du client
+        // Parse client's guess
         sscanf(buff, "cmd=N/A, valeur=%d", &proposition);
-        printf("Client %d propose %d\n", socket_client, proposition);
-        // Appelle traiterProposition pour comparer la proposition à la valeur mystère
+        printf("Client %d guesses %d\\n", socket_client, proposition);
+        // Call traiterProposition to compare guess with mystery value
         cmd = traiterProposition(proposition, valeurMystere);
 
         if (cmd == WIN) {
-            printf("Client %d a gagné\n", socket_client);
+            printf("Client %d won\\n", socket_client);
             envoyerReponse(socket_client, cmd, valeurMystere);
             break;
         } else {
-            printf("Réponse envoyée au client %d :  %s\n", socket_client, (cmd == TOO_LOW ? "Trop bas" : "Trop haut"));
+            printf("Response sent to client %d: %s\\n", socket_client, (cmd == TOO_LOW ? "Too low" : "Too high"));
             envoyerReponse(socket_client, cmd, valeurMystere);
         }
     }
     if (tentative == MAX_TENTATIVES) {
-        printf("Client %d a perdu\n", socket_client);
+        printf("Client %d lost\\n", socket_client);
         envoyerReponse(socket_client, LOSE, valeurMystere);
     }
 }
@@ -117,36 +117,36 @@ void jouerDevinette(int sock) {
     char buff[BUFFER_SIZE];
     int cmd = 0;
 
-    // Réception des bornes de l'intervalle
+    // Receive interval bounds
     read(sock, buff, BUFFER_SIZE);
-    // L'utilisateur entre sa proposition
-    printf("Entrez un nombre entre %s \n> ", buff);
+    // User enters their guess
+    printf("Enter a number between %s \\n> ", buff);
 
     while (1) {
         int proposition;
         scanf("%d", &proposition);
 
-        // Envoi de la proposition au serveur
+        // Send guess to server
         snprintf(buff, BUFFER_SIZE, "cmd=N/A, valeur=%d", proposition);
         if (write(sock, buff, BUFFER_SIZE) < 0) {
             perror("write error");
             break;
         }
 
-        // Réception de la réponse du serveur
+        // Receive server response
         read(sock, buff, BUFFER_SIZE);
         sscanf(buff, "cmd=%d", &cmd);
 
-        // Affichage des réponses
+        // Display responses
         if (cmd == TOO_LOW) {
-            printf("Trop bas! Essayez à nouveau.\n");
+            printf("Too low! Try again.\\n");
         } else if (cmd == TOO_HIGH) {
-            printf("Trop haut! Essayez à nouveau.\n");
+            printf("Too high! Try again.\\n");
         } else if (cmd == WIN) {
-            printf("Félicitations! Vous avez gagné.\n");
+            printf("Congratulations! You won.\\n");
             break;
         } else if (cmd == LOSE) {
-            printf("Désolé, vous avez perdu.\n");
+            printf("Sorry, you lost.\\n");
             break;
         }
     }

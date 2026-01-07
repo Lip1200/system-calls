@@ -3,26 +3,26 @@
 #include <openssl/evp.h>
 
 /**
- * @brief Analyse les options de la ligne de commande et définit les indicateurs et les indices correspondants.
+ * @brief Parses command line options and sets corresponding flags and indices.
  * 
- * Cette fonction analyse les options de la ligne de commande fournies par l'utilisateur et définit
- * les indicateurs et les indices correspondants en fonction des options. La fonction prend en charge
- * les options suivantes :
+ * This function parses the command line options provided by the user and sets
+ * the corresponding flags and indices based on the options. The function supports
+ * the following options:
  * 
- * - `-f` : Définit l'indicateur isFile à 1 et stocke l'index dans indFile.
- * - `-t` : Définit l'indicateur isT à 1 et stocke l'index dans indT. De plus, vérifie et stocke
- * le type de hachage spécifié.
+ * - `-f`: Sets the isFile flag to 1 and stores the index in indFile.
+ * - `-t`: Sets the isT flag to 1 and stores the index in indT. Additionally, checks and stores
+ * the specified hash type.
  * 
- * @param argc Nombre d'arguments de la ligne de commande.
- * @param argv Tableau des arguments de la ligne de commande.
- * @param isFile Pointeur vers un indicateur entier pour l'option de fichier.
- * @param indFile Pointeur vers une variable entière pour stocker l'index de l'option de fichier.
- * @param isT Pointeur vers un indicateur entier pour l'option de type de hachage.
- * @param indT Pointeur vers une variable entière pour stocker l'index de l'option de type de hachage.
+ * @param argc Number of command line arguments.
+ * @param argv Array of command line arguments.
+ * @param isFile Pointer to an integer flag for the file option.
+ * @param indFile Pointer to an integer variable to store the file option index.
+ * @param isT Pointer to an integer flag for the hash type option.
+ * @param indT Pointer to an integer variable to store the hash type option index.
  * 
- * @return 0 si l'analyse est réussie, -1 s'il y a une erreur dans les options.
+ * @return 0 if parsing is successful, -1 if there is an error in the options.
  * 
- * @warning Cette fonction modifie les valeurs pointées par isFile, indFile, isT et indT.
+ * @warning This function modifies the values pointed to by isFile, indFile, isT and indT.
  */
 int parseOptions(int argc, char* argv[], int* isFile, int* indFile, int* isT, int* indT);
 

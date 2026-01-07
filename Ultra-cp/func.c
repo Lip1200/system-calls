@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <fcntl.h>
 
-// fonction pour convertir le type mode_t en char
+// Function to convert mode_t type to char
 char fileType(mode_t type) {
     char fileType;
     switch (type & S_IFMT) {
@@ -22,105 +22,107 @@ char fileType(mode_t type) {
             fileType = 'l';
             break;
         default:
-            fileType = '?'; // Autre type de fichier
+            fileType = '?'; // Other file type
             break;
     }
     return fileType;
 }
 
-// fonction qui convertit les permissions de fichier en format de chaîne de caractères (rwx).
+// Function that converts file permissions to string format (rwx).
 char* modeToRwx(mode_t mode) {
-    char* rwx = malloc(10 * sizeof(char)); // 9 caractères pour rwx et 1 pour le caractère de fin de chaîne '\0'
+    char* rwx = malloc(10 * sizeof(char)); // 9 characters for rwx and 1 for null terminator '\\0'
     if (rwx == NULL) {
-        perror("Erreur lors de l'allocation de mémoire");
+        perror("Memory allocation error");
         exit(EXIT_FAILURE);
     }
 
-    // Propriétaire
+    // Owner
     rwx[0] = (mode & S_IRUSR) ? 'r' : '-';
     rwx[1] = (mode & S_IWUSR) ? 'w' : '-';
     rwx[2] = (mode & S_IXUSR) ? 'x' : '-';
 
-    // Groupe
+    // Group
     rwx[3] = (mode & S_IRGRP) ? 'r' : '-';
     rwx[4] = (mode & S_IWGRP) ? 'w' : '-';
     rwx[5] = (mode & S_IXGRP) ? 'x' : '-';
 
-    // Autres utilisateurs
+    // Other users
     rwx[6] = (mode & S_IROTH) ? 'r' : '-';
     rwx[7] = (mode & S_IWOTH) ? 'w' : '-';
     rwx[8] = (mode & S_IXOTH) ? 'x' : '-';
 
-    rwx[9] = '\0'; // Ajoute le caractère de fin de chaîne à la fin
+    rwx[9] = '\\0'; // Add null terminator at the end
 
     return rwx;
 }
 
-// fonction qui liste les fichiers dans un répertoire spécifié par dirPath.
+// Function that lists files in a directory specified by dirPath.
 void listFiles(const char* dirPath) {
-    // Ouvre le répertoire spécifié
+    // Open the specified directory
     DIR* dir= opendir(dirPath);
     struct dirent* entry;
     struct stat fileInfos;
 
-    // Vérifie si le répertoire est ouvert correctement
+    // Check if directory is opened correctly
     if (dir == NULL) {
-        perror("Erreur lors de l'ouverture du dossier");
+        perror("Error opening folder");
         exit(EXIT_FAILURE);
     }
 
-    // Parcourt chaque entrée dans le répertoire
+    // Traverse each entry in the directory
     while ((entry = readdir(dir)) != NULL) {
 
-        // Ignore les entrées "." et ".."
-        if (strncmp(entry->d_name, ".", 1) != 0 && strncmp(entry->d_name, "..", 2) != 0) { //ajouter \0 et augmenter de 1 pour inclure les fichiers cachés
-            // Construit le chemin complet du fichier/dossier avec malloc
+        // Ignore "." and ".." entries
+        if (strncmp(entry->d_name, ".", 1) != 0 && strncmp(entry->d_name, "..", 2) != 0) { // add \\0 and increase by 1 to include hidden files
+            // Build full file/folder path with malloc
             char* filePath = malloc(strlen(dirPath) + strlen(entry->d_name) + 2);
             if (filePath == NULL) {
-                perror("Erreur lors de l'allocation de mémoire");
+                perror("Memory allocation error");
                 exit(EXIT_FAILURE);
             }
-            //écrit la sortie dans la chaine de caratères
+            // Write output to string
             sprintf(filePath, "%s/%s", dirPath, entry->d_name);
 
-            // Obtient les informations sur le fichier/dossier
+            // Get file/folder information
             if (lstat(filePath, &fileInfos) < 0) {
-                perror("Erreur lors de la récupération des informations du fichier");
+                perror("Error retrieving file information");
                 exit(EXIT_FAILURE);
             }
-            //formatage date pour fonction strftime
+            // Date formatting for strftime function
             int max_size = 80;
             char dateModif[max_size];
             struct tm* mtime = localtime(&fileInfos.st_mtime);
             if (strftime(dateModif, max_size, "%a %b %d %H:%M:%S %Y", mtime) == 0) {
-                fprintf(stderr, "Erreur de formatage de la date strftime()");
+                fprintf(stderr, "Date formatting error strftime()");
                 exit(EXIT_FAILURE);
             }
-            // Affiche les détails du fichier/dossier
-            printf("%c %-10s %10ld %-10s %s \n",
-                   fileType(fileInfos.st_mode), modeToRwx(fileInfos.st_mode), fileInfos.st_size, dateModif, filePath);
+            // Display file/folder details
+            char* rwxMode = modeToRwx(fileInfos.st_mode);
+            printf("%c %-10s %10ld %-10s %s \\n",
+                   fileType(fileInfos.st_mode), rwxMode, fileInfos.st_size, dateModif, filePath);
+            free(rwxMode);  // Free allocated memory from modeToRwx
             if (S_ISDIR(fileInfos.st_mode))
-                listFiles(filePath); //si dossier-> appel récursif-> explore le sous dossier
+                listFiles(filePath); // If folder -> recursive call -> explore subfolder
 
-            free(filePath); // libère le malloc
+            free(filePath); // Free malloc
 
         }
     }
-    // Ferme le répertoire
+    // Close directory
     closedir(dir);
 }
 
-// fonction pour peupler la structure stat selon isF (liens copiés comme lien) ou pas (déréférencés).
+// Function to populate stat structure based on isF (links copied as links) or not (dereferenced).
 int statInfo(char* path, struct stat* pathInfos, int isF){
-    if (access(path, F_OK) == 0){  // Le fichier de path existe
-        if(isF){ //liens copiés en tant que lien
-            if (lstat(path, pathInfos) < 0) { //peuple la struct stat
-                perror("Erreur lors de la récupération des informations du fichier");
+    if (access(path, F_OK) == 0){  // File at path exists
+        if(isF){ // Links copied as links
+            if (lstat(path, pathInfos) < 0) { // Populate stat struct
+                perror("Error retrieving file information");
                 return -1;
             }
-        }else{ // liens sont déréférencés
+        }else{ // Links are dereferenced
             if (stat(path, pathInfos) < 0) {
-                perror("Erreur lors de la récupération des informations du fichier");
+                perror("Error retrieving file information");
                 return -1;
             }
         }

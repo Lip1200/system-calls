@@ -5,50 +5,50 @@
 #include <sys/stat.h>
 
 /**
- * @brief Liste les fichiers et dossiers dans le répertoire spécifié.
+ * @brief Lists files and folders in the specified directory.
  *
- * Cette fonction prend le chemin d'un répertoire en entrée, parcourt chaque entrée
- * dans le répertoire et affiche les détails des fichiers et dossiers.
+ * This function takes a directory path as input, traverses each entry
+ * in the directory and displays file and folder details.
  *
- * @param dirPath Chemin du répertoire à lister.
+ * @param dirPath Path of the directory to list.
  */
 void listFiles(const char* dirPath);
 
 /**
- * @brief Détermine le type de fichier en fonction du mode.
+ * @brief Determines file type based on mode.
  *
- * Cette fonction prend un mode de fichier en entrée et détermine le type de fichier
- * (répertoire, fichier régulier, lien symbolique, etc.).
+ * This function takes a file mode as input and determines the file type
+ * (directory, regular file, symbolic link, etc.).
  *
- * @param type Mode du fichier.
- * @return Caractère représentant le type de fichier ('d' pour répertoire, '-' pour fichier régulier, etc.).
+ * @param type File mode.
+ * @return Character representing file type ('d' for directory, '-' for regular file, etc.).
  */
 char fileType(mode_t type);
 
 /**
- * @brief Convertit le mode de fichier en chaîne de caractères rwx.
+ * @brief Converts file mode to rwx string.
  *
- * Cette fonction prend un mode de fichier en entrée et convertit les bits de permission
- * en une chaîne de caractères représentant les droits en lecture, écriture et exécution.
+ * This function takes a file mode as input and converts permission bits
+ * to a string representing read, write and execute permissions.
  *
- * @param mode Mode du fichier.
- * @return Chaîne de caractères représentant les droits en lecture, écriture et exécution (par exemple, "rwxr-xr--").
+ * @param mode File mode.
+ * @return String representing read, write and execute permissions (e.g., "rwxr-xr--").
  */
 char* modeToRwx(mode_t mode);
 
 /**
- * @brief Récupère les informations sur un fichier ou un répertoire.
+ * @brief Retrieves information about a file or directory.
  *
- * Cette fonction récupère les informations sur le fichier ou le répertoire spécifié
- * par le chemin donné. Les informations sont stockées dans la structure 'struct stat'
- * pointée par 'pathInfos'. Si 'isF' est différent de zéro, les liens symboliques ne
- * sont pas déréférencés.
+ * This function retrieves information about the file or directory specified
+ * by the given path. Information is stored in the 'struct stat'
+ * pointed to by 'pathInfos'. If 'isF' is non-zero, symbolic links are
+ * not dereferenced.
  *
- * @param path        Le chemin du fichier ou du répertoire.
- * @param pathInfos   Un pointeur vers 'struct stat' où les informations seront stockées.
- * @param isF         Si différent de zéro, les liens symboliques ne sont pas déréférencés.
+ * @param path        The file or directory path.
+ * @param pathInfos   A pointer to 'struct stat' where information will be stored.
+ * @param isF         If non-zero, symbolic links are not dereferenced.
  *
- * @return            Retourne 0 en cas de succès, -1 en cas d'échec (vérifier 'errno' pour les détails).
+ * @return            Returns 0 on success, -1 on failure (check 'errno' for details).
  */
 int statInfo(char* path, struct stat* pathInfos, int isF);
 

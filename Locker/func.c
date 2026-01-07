@@ -7,17 +7,17 @@ void printHelp(void){
     puts("*-----------------------------------------------------------------------*");
     puts("|  Format: cmd type start length [whence]                               |");
     puts("|  cmd:    ’g’ (F_GETLK), ’s’ (F_SETLK), ’w’ (F_SETLKW)                 |");
-    puts("|  type:   ’r’ (F_RDLCK), ’w’ (F_WRLCK) ou ’u’ (F_UNLCK)                |");
-    puts("|  start:  Début du vérrou \"offset\"                                     |");
-    puts("|  length: nombres d'octets à vérrouiller                               |");
-    puts("|  whence: ’s’ (SEEK_SET, default), ’c’ (SEEK_CUR) ou ’e’(SEEK_END)     |");
+    puts("|  type:   'r' (F_RDLCK), 'w' (F_WRLCK) or 'u' (F_UNLCK)                |");
+    puts("|  start:  Lock start \"offset\"                                         |");
+    puts("|  length: number of bytes to lock                                      |");
+    puts("|  whence: 's' (SEEK_SET, default), 'c' (SEEK_CUR) or 'e'(SEEK_END)     |");
     puts("*-----------------------------------------------------------------------*");
 }
 
 int parseComm(struct Commandes* comm, int* cmdLock, struct flock* fl) {
     fl->l_start = comm->start;
     fl->l_len = comm->length;
-    // Switch sur le type de commande
+    // Switch on command type
     switch (comm->cmd) {
         case 'g':
             *cmdLock = F_GETLK;
@@ -33,7 +33,7 @@ int parseComm(struct Commandes* comm, int* cmdLock, struct flock* fl) {
             return -1;
     }
 
-    // Switch sur le type de verrou
+    // Switch on lock type
     switch (comm->l_type) {
         case 'r':
             fl->l_type = F_RDLCK;
@@ -49,7 +49,7 @@ int parseComm(struct Commandes* comm, int* cmdLock, struct flock* fl) {
             return -1;
     }
 
-    // Switch sur le paramètre whence
+    // Switch on whence parameter
     switch (comm->whence) {
         case 's':
             fl->l_whence = SEEK_SET;
@@ -71,46 +71,46 @@ void lockInfos(int pid, int commande, struct flock* fl) {
 
     switch (commande) {
         case F_GETLK:
-            // Si l'utilisateur souhaite savoir s'il peut poser un verrou ou non
+            // If user wants to know if they can set a lock or not
             switch (fl->l_type) {
                 case F_UNLCK:
-                    printf("Le fichier n'a pas de verrou limitant\n");
+                    printf("The file has no limiting lock\n");
                     break;
                 case F_RDLCK:
-                    printf("Il y a un verrou \"READ lock\" commençant à %lld de taille %lld\nProcessus propriétaire > PID=%d", fl->l_start, fl->l_len, fl->l_pid);
+                    printf("There is a \"READ lock\" starting at %lld with size %lld\nOwner process > PID=%d", fl->l_start, fl->l_len, fl->l_pid);
                     break;
                 case F_WRLCK:
-                    printf("Il y a un verrou \"WRITE lock\" commençant à %lld de taille %lld\nProcessus propriétaire > PID=%d", fl->l_start, fl->l_len, fl->l_pid);
+                    printf("There is a \"WRITE lock\" starting at %lld with size %lld\nOwner process > PID=%d", fl->l_start, fl->l_len, fl->l_pid);
                     break;
             }
             break;
 
         case F_SETLK:
-            // Si l'utilisateur souhaite poser un verrou dans l'immédiat
+            // If user wants to set a lock immediately
             switch (fl->l_type) {
                 case F_UNLCK:
-                    printf("[PID=%d] a fait sauter un verrou\n", pid);
+                    printf("[PID=%d] released a lock\n", pid);
                     break;
                 case F_RDLCK:
-                    printf("Un verrou \"READ lock\" a été posé de %lld à %lld\nProcessus propriétaire du verrou > PID=%d\n", fl->l_start, fl->l_start + fl->l_len, pid);
+                    printf("A \"READ lock\" was set from %lld to %lld\nLock owner process > PID=%d\n", fl->l_start, fl->l_start + fl->l_len, pid);
                     break;
                 case F_WRLCK:
-                    printf("Un verrou \"WRITE lock\" a été posé de %lld à %lld\nProcessus propriétaire du verrou > PID=%d\n", fl->l_start, fl->l_start + fl->l_len, pid);
+                    printf("A \"WRITE lock\" was set from %lld to %lld\nLock owner process > PID=%d\n", fl->l_start, fl->l_start + fl->l_len, pid);
                     break;
             }
             break;
 
         case F_SETLKW:
-            // Si l'utilisateur souhaite poser un verrou dès qu'il sera possible d'en poser un
+            // If user wants to set a lock as soon as possible
             switch (fl->l_type) {
                 case F_UNLCK:
-                    printf("[PID=%d] a fait sauter un verrou\n", pid);
+                    printf("[PID=%d] released a lock\n", pid);
                     break;
                 case F_RDLCK:
-                    printf("Un verrou \"READ lock\" a été posé de %lld à %lld\nProcessus propriétaire du verrou > PID=%d\n", fl->l_start, fl->l_start + fl->l_len, pid);
+                    printf("A \"READ lock\" was set from %lld to %lld\nLock owner process > PID=%d\n", fl->l_start, fl->l_start + fl->l_len, pid);
                     break;
                 case F_WRLCK:
-                    printf("Un verrou \"WRITE lock\" a été posé de %lld à %lld\nProcessus propriétaire du verrou > PID=%d\n", fl->l_start, fl->l_start + fl->l_len, pid);
+                    printf("A \"WRITE lock\" was set from %lld to %lld\nLock owner process > PID=%d\n", fl->l_start, fl->l_start + fl->l_len, pid);
                     break;
             }
             break;

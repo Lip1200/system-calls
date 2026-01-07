@@ -2,79 +2,79 @@
 #define TP4_FONCTIONS_H
 
 /**
- * @brief Génère un nombre aléatoire à deviner.
+ * @brief Generates a random number to guess.
  *
- * Cette fonction génère un nombre aléatoire compris entre 1 et MAX_GUESS, utilisé comme le nombre mystère dans le jeu.
+ * This function generates a random number between 1 and MAX_GUESS, used as the mystery number in the game.
  *
- * @return int Le nombre aléatoire généré.
+ * @return int The generated random number.
  */
 int genererNombreAleatoire(void);
 
 /**
- * @brief Compare la proposition du joueur avec le nombre mystère.
+ * @brief Compares the player's guess with the mystery number.
  *
- * Cette fonction prend en entrée la proposition du joueur et la compare avec le nombre mystère.
- * Elle renvoie une indication si la proposition est trop basse, trop haute ou correcte.
+ * This function takes the player's guess as input and compares it with the mystery number.
+ * It returns an indication if the guess is too low, too high, or correct.
  *
- * @param proposition La proposition faite par le joueur.
- * @param valeurMystere Le nombre mystère à deviner.
- * @return int Un code indiquant si la proposition est trop basse (TOO_LOW), trop haute (TOO_HIGH), ou correcte (WIN).
+ * @param proposition The guess made by the player.
+ * @param valeurMystere The mystery number to guess.
+ * @return int A code indicating if the guess is too low (TOO_LOW), too high (TOO_HIGH), or correct (WIN).
  */
 int traiterProposition(int proposition, int valeurMystere);
 
 /**
- * @brief Envoie une réponse au client en fonction de sa proposition.
+ * @brief Sends a response to the client based on their guess.
  *
- * Cette fonction envoie une réponse au client, lui indiquant si sa proposition est trop basse, trop haute, correcte, ou si le jeu est terminé.
+ * This function sends a response to the client, indicating if their guess is too low, too high, correct, or if the game is over.
  *
- * @param socket_client Le socket du client auquel envoyer la réponse.
- * @param cmd Le code de réponse à envoyer (TOO_LOW, TOO_HIGH, WIN, LOSE).
- * @param valeur La valeur correcte ou la dernière proposition du joueur.
+ * @param socket_client The client socket to send the response to.
+ * @param cmd The response code to send (TOO_LOW, TOO_HIGH, WIN, LOSE).
+ * @param valeur The correct value or the player's last guess.
  */
 void envoyerReponse(int socket_client, int cmd, int valeur);
 
 /**
- * @brief Gère la logique du jeu pour une connexion client.
+ * @brief Handles the game logic for a client connection.
  *
- * Cette fonction gère la logique du jeu pour un client donné. Elle lit les propositions du client, appelle les fonctions pour les traiter, et envoie les réponses appropriées.
+ * This function handles the game logic for a given client. It reads the client's guesses, calls functions to process them, and sends appropriate responses.
  *
- * @param socket_client Le socket du client à gérer.
- * @param valeurMystere Le nombre mystère que le client doit deviner.
+ * @param socket_client The client socket to handle.
+ * @param valeurMystere The mystery number that the client must guess.
  */
 void gererConnexion(int socket_client, int valeurMystere);
 
 /**
- * @brief Convertit une chaîne de caractères en un numéro de port et vérifie sa validité.
+ * @brief Converts a string to a port number and validates it.
  *
- * Cette fonction convertit la chaîne de caractères fournie en un numéro de port.
- * Elle vérifie également que le port est dans une plage valide (supérieur à 1024 et inférieur à 65535).
+ * This function converts the provided string to a port number.
+ * It also checks that the port is in a valid range (greater than 1024 and less than 65535).
  *
- * @param portStr La chaîne de caractères représentant le numéro de port.
- * @return int Le numéro de port après conversion et validation, ou -1 en cas d'erreur.
+ * @param portStr The string representing the port number.
+ * @return int The port number after conversion and validation, or -1 on error.
  */
 int convertPort(const char* portStr);
 
 /**
- * @brief Permet au client de jouer au jeu de devinettes.
+ * @brief Allows the client to play the guessing game.
  *
- * Cette fonction gère la logique du jeu côté client, en permettant à l'utilisateur
- * de faire des propositions et en affichant les réponses du serveur.
+ * This function handles the client-side game logic, allowing the user
+ * to make guesses and displaying server responses.
  *
- * @param sock Le descripteur de fichier du socket client.
+ * @param sock The client socket file descriptor.
  */
 void jouerDevinette(int sock);
 
 /**
- * @brief Affiche une bannière décorative pour le client.
+ * @brief Displays a decorative banner for the client.
  *
- * Cette fonction affiche une bannière ASCII artistique pour le client au démarrage du jeu.
+ * This function displays an ASCII art banner for the client at game startup.
  */
 void banniereClient(void);
 
 /**
- * @brief Affiche une bannière décorative pour le serveur.
+ * @brief Displays a decorative banner for the server.
  *
- * Cette fonction affiche une bannière ASCII artistique pour le serveur au démarrage du jeu.
+ * This function displays an ASCII art banner for the server at game startup.
  */
 void banniereServeur(void);
 

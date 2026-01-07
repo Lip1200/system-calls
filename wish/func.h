@@ -20,7 +20,7 @@
 
 #define MAX_BACKGROUND_JOBS 10
 #define USER_INPUT_SIZE 1024
-#define ARG_MAX 32
+#define WISH_ARG_MAX 32  // Renamed from ARG_MAX to avoid conflict with system macro
 #define ANSI_ROUGE   "\x1b[31m"
 #define ANSI_VERT    "\x1b[32m"
 #define ANSI_BLEU    "\x1b[34m"
@@ -40,72 +40,72 @@ typedef struct ShellState {
 extern struct ShellState shellState;
 
 /**
- * Exécute les commandes intégrées au shell.
+ * Executes shell built-in commands.
  * 
- * @param argc Nombre d'arguments.
- * @param argv Tableau des arguments de la commande.
- * @return 1 si la commande est une commande intégrée et a été exécutée, 0 sinon.
+ * @param argc Number of arguments.
+ * @param argv Array of command arguments.
+ * @return 1 if command is a built-in and was executed, 0 otherwise.
  */
 int execute_builtin(int argc, char *argv[]);
 
 /**
- * Analyse l'entrée utilisateur et la divise en arguments.
+ * Parses user input and splits it into arguments.
  * 
- * @param input Chaîne d'entrée à analyser.
- * @param argv Tableau pour stocker les arguments extraits.
- * @param argc Pointeur pour stocker le nombre d'arguments extraits.
- * @param max_args Nombre maximum d'arguments à extraire.
- * @param background Pointeur pour indiquer si la commande doit être exécutée en arrière-plan.
+ * @param input Input string to parse.
+ * @param argv Array to store extracted arguments.
+ * @param argc Pointer to store number of extracted arguments.
+ * @param max_args Maximum number of arguments to extract.
+ * @param background Pointer to indicate if command should run in background.
  */
 void parse_input(char *input, char *argv[], int *argc, int max_args, int* background);
 
 /**
- * Exécute une commande non intégrée.
+ * Executes a non-built-in command.
  * 
- * @param argv Tableau d'arguments de la commande.
- * @param shellState État actuel du shell.
- * @return Statut de sortie de la commande exécutée, ou 0 si la commande est en arrière-plan.
+ * @param argv Array of command arguments.
+ * @param shellState Current shell state.
+ * @return Exit status of executed command, or 0 if command is in background.
  */
 int execute_command(char *argv[], ShellState* shellState);
 #ifdef USE_READLINE
 
-/** si readline est installé:
- * Fonction de complétion personnalisée pour readline.
+/** If readline is installed:
+ * Custom completion function for readline.
  * 
- * @param text Texte à compléter.
- * @param start Position de début de la complétion.
- * @param end Position de fin de la complétion.
- * @return Tableau de chaînes correspondant aux complétions possibles.
+ * @param text Text to complete.
+ * @param start Start position of completion.
+ * @param end End position of completion.
+ * @return Array of strings matching possible completions.
  */
 char **my_completion(const char *text, int start, int end);
 #endif
 
-// Déclaration des fonctions de gestion des signaux
+// Signal handler function declarations
 /**
- * Configure les gestionnaires de signaux pour le shell.
+ * Configures signal handlers for the shell.
  */
 void setup_signal_handlers(void);
 
 /**
- * Gestionnaire pour le signal SIGINT.
+ * Handler for SIGINT signal.
  * 
- * @param signum Numéro du signal.
+ * @param signum Signal number.
  */
 void handle_sigint(int signum);
 
 /**
- * Gestionnaire pour le signal SIGHUP.
+ * Handler for SIGHUP signal.
  * 
- * @param signum Numéro du signal.
+ * @param signum Signal number.
  */
 void handle_sighup(int signum);
 
 /**
- * Gestionnaire pour les signaux SIGCHLD des processus en arrière-plan.
+ * Handler for SIGCHLD signals from background processes.
  * 
- * @param signum Numéro du signal.
- * @param siginfo Informations sur le signal.
- * @param context Contexte du signal.
+ * @param signum Signal number.
+ * @param siginfo Signal information.
+ * @param context Signal context.
  */
 void child_process_signal(int signum, siginfo_t *siginfo, void *context);
 

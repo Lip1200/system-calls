@@ -2,49 +2,49 @@
 #include "fonctions.h"
 
 int main(int argc, char *argv[]) {
-    // Vérification que l'adresse IP du serveur et le port sont fournis
+    // Check that the server IP address and port are provided
     if (argc != 3) {
         fprintf(stderr, "Usage: %s <server IP> <port>\n", argv[0]);
         return -1;
     }
-    // Traitement des arguments de la ligne de commande
-    char* server_ip = argv[1]; // IP du serveur
-    int port = convertPort(argv[2]); // Convertir l'argument en port
+    // Process command line arguments
+    char* server_ip = argv[1]; // Server IP
+    int port = convertPort(argv[2]); // Convert argument to port
     if (port == -1){
-        perror("Erreur de convertion de port");
+        perror("Port conversion error");
         return -1;
     }
 
-    struct sockaddr_in serv_addr; // Structure pour l'adresse du serveur
-    int sock = 0; // Descripteur de fichier pour le socket client
+    struct sockaddr_in serv_addr; // Structure for server address
+    int sock = 0; // File descriptor for client socket
 
-    /** 1. Crée un socket (socket) **/
+    /** 1. Create a socket (socket) **/
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        perror("\nErreur de création de socket");
+        perror("\nSocket creation error");
         return -1;
     }
-    // Configuration de la structure d'adresse
-    serv_addr.sin_family = AF_INET; // Type d'adresse (IPv4)
-    serv_addr.sin_port = htons(port); // Port du serveur
+    // Configure address structure
+    serv_addr.sin_family = AF_INET; // Address type (IPv4)
+    serv_addr.sin_port = htons(port); // Server port
 
-    // Convertit l'adresse IP du serveur de texte en binaire
-    if (inet_pton(AF_INET, server_ip, &serv_addr.sin_addr) <= 0) { //renvoie 1 succès, 0 adresse invalide et -1 famille invalide
-        perror("\nAdresse ou famille invalide\n");
+    // Convert server IP address from text to binary
+    if (inet_pton(AF_INET, server_ip, &serv_addr.sin_addr) <= 0) { // returns 1 success, 0 invalid address, -1 invalid family
+        perror("\nInvalid address or family\n");
         return -1;
     }
 
-    /** 2. Connecte un socket à un serveur (connect) **/
+    /** 2. Connect socket to server (connect) **/
     if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        perror("Echec de connection");
+        perror("Connection failed");
         return -1;
     }
     banniereClient();
 
-    /** 3. Lecture/Ecriture à parir du socket (read/write) **/
+    /** 3. Read/Write from socket (read/write) **/
 
     jouerDevinette(sock);
 
-    /** 4. Ferme le socket (close) **/
-    close(sock); // Ferme le socket client
+    /** 4. Close socket (close) **/
+    close(sock); // Close client socket
     return 0;
 }

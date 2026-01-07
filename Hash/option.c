@@ -5,37 +5,37 @@
 #include <unistd.h>
 #include <openssl/evp.h>
 
-// Fonction pour parser les options de ligne de commande
+// Function to parse command line options
 int parseOptions(int argc, char* argv[], int* isFile, int* indFile, int* isT, int* indT)
 {
     int opt;
 
-    // Utilisation de getopt pour traiter les options de ligne de commande
+    // Use getopt to process command line options
     while ((opt = getopt(argc, argv, "t:f")) != -1)
     {
         switch (opt)
         {
         case 'f':
-            // L'option -f est spécifiée, indiquant que le programme doit traiter un fichier
+            // -f option is specified, indicating the program should process a file
             *isFile = 1;
-            // Stocke l'indice du premier argument de fichier
+            // Store the index of the first file argument
             *indFile = optind-1;
             break;
         case 't':
-            // L'option -t est spécifiée, indiquant l'algorithme de hachage
+            // -t option is specified, indicating the hash algorithm
             *isT = 1;
-            // Stocke l'indice de l'algorithme de hachage
+            // Store the index of the hash algorithm
             *indT = optind-1;
-            // Vérifie si un argument est spécifié avec l'option -t
+            // Check if an argument is specified with -t option
             if (optarg == NULL)
             {
-                printf("Unknown message digest %s\n", optarg);
+                printf("Unknown message digest %s\\n", optarg);
                 return -1;
             }
             break;
         default: /* '?' */
-            // Une option non reconnue est spécifiée
-            fprintf(stderr, "Usage: %s [-t type] [-f file] name\n",
+            // An unrecognized option is specified
+            fprintf(stderr, "Usage: %s [-t type] [-f file] name\\n",
                     argv[0]);
             return -1;
         }

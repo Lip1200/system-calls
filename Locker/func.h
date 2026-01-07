@@ -3,47 +3,47 @@
 #include <fcntl.h>
 #include <sys/types.h>
 
-// Définition de la structure Commandes
+// Definition of Commandes structure
 typedef struct Commandes {
-    char cmd;    // Commande ('g', 's', 'w')
-    char l_type; // Type de verrou ('r', 'w', 'u')
-    int start;   // Position de départ du verrou
-    int length;  // Longueur du verrou
-    char whence; // Position relative ('s', 'c', 'e')
+    char cmd;    // Command ('g', 's', 'w')
+    char l_type; // Lock type ('r', 'w', 'u')
+    int start;   // Lock start position
+    int length;  // Lock length
+    char whence; // Relative position ('s', 'c', 'e')
 } Commandes;
 
 /**
- * @brief Affiche l'aide pour l'utilisation du programme.
+ * @brief Displays help for program usage.
  *
- * Cette fonction affiche des instructions sur la façon d'utiliser le programme,
- * en détaillant le format des commandes à entrer pour manipuler les verrous sur les fichiers.
+ * This function displays instructions on how to use the program,
+ * detailing the command format to enter for manipulating file locks.
  */
 void printHelp(void);
 
 
 /**
- * @brief Analyse la commande entrée par l'utilisateur et configure la structure flock.
+ * @brief Parses user-entered command and configures the flock structure.
  *
- * Cette fonction prend en entrée une structure Commandes contenant les détails d'une commande utilisateur,
- * et configure une structure flock en fonction des paramètres de cette commande.
+ * This function takes a Commandes structure containing user command details as input,
+ * and configures a flock structure according to the command parameters.
  *
- * @param comm Pointeur vers la structure Commandes contenant les détails de la commande.
- * @param cmdLock Pointeur vers un entier pour stocker le type de commande de verrouillage.
- * @param fl Pointeur vers une structure flock qui sera configurée selon la commande.
- * @return int Retourne 0 en cas de succès, -1 en cas d'erreur.
+ * @param comm Pointer to Commandes structure containing command details.
+ * @param cmdLock Pointer to integer to store the lock command type.
+ * @param fl Pointer to flock structure that will be configured according to command.
+ * @return int Returns 0 on success, -1 on error.
  */
 int parseComm(struct Commandes* comm, int* cmdLock, struct flock* fl);
 
 
 /**
- * @brief Affiche des informations sur les verrous posés ou existants.
+ * @brief Displays information about set or existing locks.
  *
- * En fonction de la commande et du statut de fcntl, cette fonction affiche des informations
- * détaillées sur les verrous actuels ou ceux qui viennent d'être modifiés sur le fichier.
+ * Based on the command and fcntl status, this function displays detailed
+ * information about current locks or those that have just been modified on the file.
  *
- * @param pid ID du processus en cours d'exécution.
- * @param commande Type de commande de verrouillage effectuée.
- * @param fl Structure flock contenant les détails du verrou.
+ * @param pid ID of the currently running process.
+ * @param commande Type of lock command performed.
+ * @param fl flock structure containing lock details.
  */
 void lockInfos(int pid, int commande, struct flock* fl);
 

@@ -6,79 +6,78 @@
 
 
 int main (int argc, char* argv[]){
-    //le programme prend un unique fichier en entrée
+    // The program takes a single file as input
     if (argc != 2){
-        printf("Usage %s : [fichier]", argv[0]);
+        printf("Usage %s : [file]", argv[0]);
         return -1;
     }
     int fd = open(argv[1], O_RDWR);
     if ( fd < 0){
-        perror("Impossible d'ouvrir le fichier");
+        perror("Unable to open file");
         return -1;
     }
 
-    int exit = 1;
-    while(exit){
+    int running = 1;
+    while(running){
         int pid = getpid();
-        //déclare la structure pour accueillir les commandes
+        // Declare structure to hold commands
         struct Commandes comm;
-        //initialisation de whence à 's' --> SEEK_SET
+        // Initialize whence to 's' --> SEEK_SET
         comm.whence = 's';
 
         int cmdLock;
         struct flock fl;
-        char input[100] ; //buffer
+        memset(&fl, 0, sizeof(fl));
+        char input[100] ; // buffer
 
-        //On affiche le pid > pour prompt utilisateur
-        printf("\nTaper '?' pour l'aide et 'q' pour quitter le programme.\nPID = %d > ", pid);
+        // Display pid > for user prompt
+        printf("\nType '?' for help and 'q' to quit the program.\nPID = %d > ", pid);
 
-        //vide le tampon d'entrée standard
-        if (fflush(stdin) < 0){
-            perror("Erreur de vidange stdin");
-            return -1;
+        // Read input
+        if (fgets(input, sizeof(input), stdin) == NULL) {
+            break;
         }
-        fgets(input, sizeof(input), stdin);  // Récupère une ligne de l'entrée standard (clavier)
 
-        // on compte le nombre d'arguments et remplit la structure Commandes
+        // Count number of arguments and fill the Commandes structure
         int count = sscanf(input, "%c %c %d %d %c", &comm.cmd, &comm.l_type, &comm.start, &comm.length, &comm.whence);
 
         if(count == 1){
             if(strcmp(input, "q\n") == 0){
-                exit = 0;
+                running = 0;
                 break;
             }else{
                 printHelp();
             }
         }else if ((count < 4) || (count > 5)){
-            printf("Erreur d'arguments\n");
+            printf("Argument error\\n");
             printHelp();
         }else if ((count == 4) || (count == 5)){
             parseComm(&comm, &cmdLock, &fl);
-            // Appelle fcntl pour poser le verrou
+            // Call fcntl to set the lock
             int status = fcntl(fd, cmdLock, &fl) ;
             if (status < 0){
-                // Vérifie s'il y a un verrou concurrent
-                struct flock temp_fl = fl; // Copie de la structure flock pour vérification
+                // Check if there is a conflicting lock
+                struct flock temp_fl = fl; // Copy of flock structure for verification
                 if (fcntl(fd, F_GETLK, &temp_fl) == -1) {
-                    perror("Erreur fcntl F_GETLK");
+                    perror("fcntl F_GETLK error");
                     return -1;
                 }
-                // Si le verrou n'est pas disponible
+                // If lock is not available
                 if (temp_fl.l_type != F_UNLCK) {
                     if(temp_fl.l_type == F_RDLCK){
-                        printf("Il y a un verrou \"READ lock\" commençant à %lld de taille %lld\nProcessus propriétaire > PID=%d\n", temp_fl.l_start, temp_fl.l_len, temp_fl.l_pid);
+                        printf("There is a \\"READ lock\\" starting at %lld with size %lld\\nOwner process > PID=%d\\n", temp_fl.l_start, temp_fl.l_len, temp_fl.l_pid);
                     }
                     if(temp_fl.l_type == F_WRLCK){
-                        printf("Il y a un verrou \"WRITE lock\" commençant à %lld de taille %lld\nProcessus propriétaire > PID=%d\n", temp_fl.l_start, temp_fl.l_len, temp_fl.l_pid);
+                        printf("There is a \\"WRITE lock\\" starting at %lld with size %lld\\nOwner process > PID=%d\\n", temp_fl.l_start, temp_fl.l_len, temp_fl.l_pid);
                     }
                     continue;
                 }
             }else{
-                // Appelle la fonction lock pour afficher le résultat
+                // Call lock function to display result
                 lockInfos(pid, cmdLock, &fl);
             }
         }else{
-            printf("Requète erronée!\n");
+            printf("Erroneous request!\\n");
             printHelp();
         }
     }

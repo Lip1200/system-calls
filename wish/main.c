@@ -5,59 +5,59 @@ struct ShellState shellState;
 int main() {
     setup_signal_handlers();
 
-    //declarations des variables 
-    char* argv[ARG_MAX];
+    // Variable declarations 
+    char* argv[WISH_ARG_MAX];
     int argc;
     char* user = getenv("USER");
-    if (!user) user = "user";  // Utiliser un nom par défaut si USER n'est pas défini
+    if (!user) user = "user";  // Use default name if USER is not defined
     char* prompt;
     #ifdef USE_READLINE
-    char* userInput;  // Déclarer userInput seulement si USE_READLINE est défini
+    char* userInput;  // Declare userInput only if USE_READLINE is defined
     #else
-    char userInput[USER_INPUT_SIZE];  // Utiliser un tampon statique si readline n'est pas disponible
+    char userInput[USER_INPUT_SIZE];  // Use static buffer if readline not available
     #endif
 
     #ifdef USE_READLINE
-    // Configure la fonction de complétion
+    // Configure completion function
     rl_attempted_completion_function = my_completion;
     #endif
 
     while (1) {
-        char *currentDir = getcwd(NULL, 0);  // Allocation dynamique
+        char *currentDir = getcwd(NULL, 0);  // Dynamic allocation
         if (currentDir == NULL) {
-            perror("Erreur getcwd");
+            perror("getcwd error");
             continue;
         }
 
-        asprintf(&prompt, ANSI_VERT "%s" ANSI_MAGENTA "@wish [ %s ]:\n" ANSI_VERT "wi$h" ANSI_RESET "  " SYMBOL_COEUR "  ", user, currentDir);
+        asprintf(&prompt, ANSI_VERT "%s" ANSI_MAGENTA "@wish [ %s ]:\\n" ANSI_VERT "wi$h" ANSI_RESET "  " SYMBOL_COEUR "  ", user, currentDir);
 
         #ifdef USE_READLINE
-        char* userInput = readline(prompt);  // Lire l'entrée avec readline
+        char* userInput = readline(prompt);  // Read input with readline
         #else
         printf("%s", prompt);
         if (fgets(userInput, USER_INPUT_SIZE, stdin) == NULL) {
             free(prompt);
             continue;
         }
-        userInput[strlen(userInput) - 1] = '\0';  // Enlever le retour à la ligne
+        userInput[strlen(userInput) - 1] = '\\0';  // Remove newline
         #endif
 
-        free(prompt);  // Libérer la mémoire allouée par asprintf
+        free(prompt);  // Free memory allocated by asprintf
 
         #ifdef USE_READLINE
-        if (!userInput) break;  // Sortir si Ctrl-D est pressé
+        if (!userInput) break;  // Exit if Ctrl-D is pressed
         #endif
 
         if (strlen(userInput) == 0) {
             free(currentDir);
-            continue;  // Si aucune commande n'est entrée
+            continue;  // If no command is entered
         }
 
         #ifdef USE_READLINE
-        add_history(userInput);  // Ajouter à l'historique si non vide
+        add_history(userInput);  // Add to history if not empty
         #endif
 
-        parse_input(userInput, argv, &argc, ARG_MAX, &shellState.background);
+        parse_input(userInput, argv, &argc, WISH_ARG_MAX, &shellState.background);
         if (argc > 0) {
             if (!execute_builtin(argc, argv)) {
                 execute_command(argv, &shellState);
@@ -65,9 +65,9 @@ int main() {
         }
 
         #ifdef USE_READLINE
-        free(userInput);  // Libère la mémoire allouée par readline
+        free(userInput);  // Free memory allocated by readline
         #endif
-        free(currentDir);  // Libère la mémoire allouée par getcwd
+        free(currentDir);  // Free memory allocated by getcwd
     }
     return 0;
 }

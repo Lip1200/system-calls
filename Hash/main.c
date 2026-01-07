@@ -9,42 +9,47 @@
 
 int main(int argc, char *argv[])
 {
-    int isFile = 0;     // Indique si l'option -f est spécifiée
-    int indFile = -1;   // Stocke l'indice du premier argument de fichier
-    int isT = 0;        // Indique si l'option -t est spécifiée
-    int indT = -1;      // Stocke l'indice de l'algorithme de hachage
-    int start;          // détermine à partir de quel indice de argv commence le traitement de la
-                        // chaîne de caractères en entrée lorsque l'option -f n'est pas spécifiée
+    int isFile = 0;     // Indicates if -f option is specified
+    int indFile = -1;   // Stores the index of the first file argument
+    int isT = 0;        // Indicates if -t option is specified
+    int indT = -1;      // Stores the index of the hash algorithm
+    int start;          // Determines from which argv index to start processing
+                        // the input string when -f option is not specified
 
-    // Vérification des options de ligne de commande
+    // Check command line options
     if(parseOptions(argc, argv, &isFile, &indFile, &isT, &indT) == -1){
-        fprintf(stderr, "Usage: %s [-t type] [-f file] name\n",argv[0]);
+        fprintf(stderr, "Usage: %s [-t type] [-f file] name\\n",argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    // Si l'option -t n'est pas sélectionnée, SHA-1 par défaut
+    // If -t option is not selected, default to SHA-1
     const EVP_MD* md;
     if (indT == -1)
         md = EVP_get_digestbyname("sha1");
     else
         md = EVP_get_digestbyname(argv[indT]);
     
-    if (isFile)  //si -f est séléctionné on passe à la fonction de hachage tous les fichiers donnés en arguments
+    if (md == NULL) {
+        fprintf(stderr, "Unknown message digest algorithm\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    if (isFile)  // If -f is selected, pass all files given as arguments to hash function
     {
-        // hash la liste des fichiers passés en arguments
+        // Hash the list of files passed as arguments
         for (int i = indFile+1; i < argc; i++){
-            printf("File %s\n", argv[i]);
+            printf("File %s\\n", argv[i]);
             FileHash(argv[i], md); 
         }
     }
     else
     {
-        if(isT) // Vérifie si l'option -t est sélectionnée et définit le type de hachage en conséquence
+        if(isT) // Check if -t option is selected and set hash type accordingly
             start = indT+1;
         else
             start = 1;
 
-        // Calcul la taille de l'entrée à hacher
+        // Calculate input size to hash
         int size_input = strlen(argv[start]);
         StringHash(argv[start], md, size_input);
     }

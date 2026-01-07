@@ -2,19 +2,19 @@
 #define COPY_H
 
 /**
- * Copie le fichier spécifié depuis la source vers la destination.
- * @param sourcePath Le chemin du fichier source.
- * @param destinationPath Le chemin du fichier de destination.
- * @param isA Indicateur pour vérifier si l'option -a est activée.
+ * Copies the specified file from source to destination.
+ * @param sourcePath The source file path.
+ * @param destinationPath The destination file path.
+ * @param isA Flag to check if -a option is enabled.
  */
 void copyFile(char* sourcePath, char* destinationPath, int isA);
 
 /**
- * Copie le fichier ou le dossier spécifié depuis la source vers la destination.
- * @param sourcePath Le chemin du fichier ou du dossier source.
- * @param destinationPath Le chemin du fichier ou du dossier de destination.
- * @param isA Indicateur pour vérifier si l'option -a est activée.
- * @param isF Indicateur pour vérifier si l'option -f est activée.
+ * Copies the specified file or folder from source to destination.
+ * @param sourcePath The source file or folder path.
+ * @param destinationPath The destination file or folder path.
+ * @param isA Flag to check if -a option is enabled.
+ * @param isF Flag to check if -f option is enabled.
  */
 void ultraCP(char* sourcePath, char* destinationPath, int isA, int isF);
 

@@ -18,43 +18,43 @@ void copyFile(char* sourcePath, char* destinationPath, int isA) {
     ssize_t bytesRead;
     struct stat sourceInfos;
 
-    //ouvre le fichier source
+    // Open source file
     if ((fd_source = open(sourcePath, O_RDONLY)) < 0) {
-        fprintf(stderr, "Erreur d'ouverture de la source %s: %s\n", sourcePath, strerror(errno));
+        fprintf(stderr, "Error opening source %s: %s\\n", sourcePath, strerror(errno));
         exit(EXIT_FAILURE);
     }
 
-    // Obtient les informations sur le fichier
+    // Get file information
     if (fstat(fd_source, &sourceInfos) < 0) {
-        perror("Erreur lors de la récupération des informations du fichier");
+        perror("Error retrieving file information");
         exit(EXIT_FAILURE);
     }
-    //ouvre le fichier destination et le crée s'il n'existe pas avec les meme droits que la source
+    // Open destination file and create if it doesn't exist with same permissions as source
     if ((fd_destination = open(destinationPath, O_WRONLY | O_CREAT, sourceInfos.st_mode)) < 0){
-        perror("Erreur d'ouverture de destinationPath");
+        perror("Error opening destinationPath");
         close(fd_source);
         exit(EXIT_FAILURE);
     }
 
-    // Copie le contenu du fichier source vers le fichier de destination
+    // Copy source file content to destination file
     while ((bytesRead = read(fd_source, buf, sizeof(buf))) > 0) {
         if ( write(fd_destination, buf, bytesRead) != bytesRead) {
-            perror("Erreur lors de l'écriture dans le fichier de destination");
+            perror("Error writing to destination file");
             close(fd_source);
             close(fd_destination);
             exit(EXIT_FAILURE);
         }
     }
     if (bytesRead == -1) {
-        perror("Erreur lors de la lecture du fichier source");
+        perror("Error reading source file");
     }
-    // Ferme les descripteurs de fichiers
+    // Close file descriptors
     close(fd_source);
     close(fd_destination);
-    // Modifier les droits du fichier de destination si l'option -a est activée
+    // Modify destination file permissions if -a option is enabled
     if (isA) {
         if (chmod(destinationPath, sourceInfos.st_mode) < 0) {
-            perror("Erreur lors de la modification des droits du fichier de destination");
+            perror("Error modifying destination file permissions");
             exit(EXIT_FAILURE);
         }
     }
@@ -64,79 +64,78 @@ void ultraCP(char* sourcePath, char* destinationPath, int isA, int isF) {
     
     struct stat sourceInfo;
     if (statInfo(sourcePath, &sourceInfo, isF) < 0){
-        fprintf(stderr, "Erreur lors de l'appel fonction statInfo\n");
+        fprintf(stderr, "Error calling statInfo function\\n");
         exit(EXIT_FAILURE);
     }
 
-    if (S_ISDIR(sourceInfo.st_mode)) { // dossier
-        // Ouvre le dossier source
+    if (S_ISDIR(sourceInfo.st_mode)) { // Directory
+        // Open source folder
         DIR* dir = opendir(sourcePath);
         if (dir == NULL) {
-            perror("Erreur lors de l'ouverture du dossier source");
+            perror("Error opening source folder");
             exit(EXIT_FAILURE);
         }
 
-        // Alloue dynamiquement de la mémoire pour le chemin complet de la destination
+        // Dynamically allocate memory for full destination path
         char* newDest = malloc(strlen(destinationPath) + strlen(basename(sourcePath)) + 2);
         if (newDest == NULL) {
-            perror("Erreur lors de l'allocation de mémoire");
+            perror("Memory allocation error");
             free(newDest);
             exit(EXIT_FAILURE);
         }
         sprintf(newDest, "%s/%s", destinationPath, basename(sourcePath));
 
-        //On crée le dossier source dans la destination
+        // Create source folder in destination
         mkdir(newDest, sourceInfo.st_mode);
 
 
-        // Parcourt chaque entrée dans le dossier source
+        // Traverse each entry in source folder
         struct dirent* entry;
         while ((entry = readdir(dir)) != NULL) {
-            // Ignore les entrées "." et ".."
-            if (strncmp(entry->d_name, ".\0", 2) != 0 && strncmp(entry->d_name, "..\0", 3) != 0) {
+            // Ignore "." and ".." entries
+            if (strncmp(entry->d_name, ".\\0", 2) != 0 && strncmp(entry->d_name, "..\\0", 3) != 0) {
                 
-                // Alloue dynamiquement de la mémoire pour le chemin complet de la source
+                // Dynamically allocate memory for full source path
                 char* newSource = malloc(strlen(sourcePath) + strlen(entry->d_name) + 2);
                 if (newSource == NULL) {
-                    perror("Erreur lors de l'allocation de mémoire");
+                    perror("Memory allocation error");
                     exit(EXIT_FAILURE);
                 }
-                // Construit le chemin complet pour la source
+                // Build full path for source
                 sprintf(newSource, "%s/%s", sourcePath, entry->d_name);                
 
                 if (statInfo(newSource, &sourceInfo, isF) < 0){
-                    fprintf(stderr, "Erreur lors de l'appel fonction statInfo\n");
+                    fprintf(stderr, "Error calling statInfo function\\n");
                     exit(EXIT_FAILURE);
                 }
                 if (S_ISDIR(sourceInfo.st_mode)){
-                    // Appel récursif pour copier le contenu du dossier
+                    // Recursive call to copy folder content
                     ultraCP(newSource, newDest, isA, isF);
                 }
                 else if(S_ISREG(sourceInfo.st_mode) || S_ISLNK(sourceInfo.st_mode)){
-                    char* newDestFile = malloc(strlen(newDest) + strlen(basename(newSource)));
+                    char* newDestFile = malloc(strlen(newDest) + strlen(basename(newSource)) + 2);
                     if (newDestFile == NULL) {
-                        perror("Erreur lors de l'allocation de mémoire");
-                        free(newDestFile);
+                        perror("Memory allocation error");
                         exit(EXIT_FAILURE);
                     }
                     sprintf(newDestFile, "%s/%s", newDest, basename(newSource));
                     copyFile(newSource, newDestFile, isA);
                     free(newDestFile);
                 }
-                // Libère la mémoire allouée dynamiquement
+                // Free dynamically allocated memory
                 free(newSource);
             }
         }
         free(newDest);
-        // Modifier les droits du fichier ou du dossier de destination si l'option -a est activée
+        // Modify destination file or folder permissions if -a option is enabled
         if (isA) {
             if (chmod(destinationPath, sourceInfo.st_mode) < 0) {
-                perror("Erreur lors de la modification des droits du fichier/dossier de destination");
+                perror("Error modifying destination file/folder permissions");
                 exit(EXIT_FAILURE);
             }
         }
-        // Ferme le dossier source
+        // Close source folder
         closedir(dir);
     }
-    exit(EXIT_SUCCESS);
+    // Function completed successfully
 }
